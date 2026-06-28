@@ -87,8 +87,8 @@ Legend: ✅ matches target · ⚠️ partial · ❌ missing or N/A · 🔀 diffe
 3. **`helm/argocd/` GitOps layout** exists only on `irl-planner-pro` and `plugin-skill-hosting`. Others seal secrets in-chart or at `helm/` root.
 4. **Postgres major freeze in `renovate.json`** exists only on `irl-planner-pro`, despite bundled Postgres on `trivia` and `plugin-skill-hosting`.
 5. **`yt-infographics` has no `renovate.json`** and no pre-commit.
-6. **`easy-host-k8s` CI is broken/stale** — `.github/workflows/build.yml` runs Maven in a `backend/` directory that no longer exists; app code is `backend-go/`. Also builds on `ubuntu-latest` instead of ARC + `oglimmer.sh`; `oglimmer.sh` has kubectl-only restart (no hook).
-7. **`coffee-diary` has no `.github/workflows/`** — README references `build.yml` that is not on disk; add `ci.yml` + ARC `build.yml`, restart hook in `oglimmer.sh`, pre-commit baseline.
+6. **`easy-host-k8s` CI is broken/stale** — `.github/workflows/build.yml` runs Maven in a `backend/` directory that no longer exists; the app code is now `backend-go/`. It also builds on `ubuntu-latest` instead of ARC + `oglimmer.sh`, and `oglimmer.sh` restarts via kubectl only (no hook).
+7. **`coffee-diary` has no `.github/workflows/`** — its README references a `build.yml` that is not on disk. Add `ci.yml` + ARC `build.yml`, a restart hook in `oglimmer.sh`, and a pre-commit baseline.
 8. **`cybernight` has no `.github/workflows/`** — add `ci.yml` + ARC `build.yml` + restart hook; pin Docker base images; document `frontend2/` (Pixi) vs `frontend/` (Vue) deploy default.
 9. **`picz2` has no `.github/workflows/`** — add `ci.yml` + ARC `build.yml` + restart hook; onboard `arc-picz2` if missing.
 10. **`picz` is legacy** — Gradle (not Maven) backend; deploy via `build/terraform` + `build/ansible` (AWS), not oglimmer/Helm; successor is `picz2`.

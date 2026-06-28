@@ -62,7 +62,7 @@ For repos with **three or more independently deployable surfaces** (e.g. `fronte
 
 **When to split PR workflows:**
 
-- Each file triggers on `pull_request` only with native `paths:` filters (include the workflow file in every filter).
+- Each file triggers only on `pull_request`, using native `paths:` filters (include the workflow file in every filter).
 - Downstream jobs stay simple — no `changes` job required per file.
 - Reviewers see only the checks that match their diff.
 
@@ -408,7 +408,7 @@ Set `timeout-minutes` on every job. PR gates: 10–15 min; ARC builds: 20–30 m
 
 ### Quality gates before image push
 
-`ci.yml` on PR + main is the primary gate. On merge, `build.yml` may **re-run the cheap checks** for the component being built (lint, typecheck, unit tests) immediately before `oglimmer.sh build` — especially when frontend Dockerfiles skip those steps. Belt-and-suspenders, not a substitute for `ci.yml`.
+`ci.yml` on PR + main is the primary gate. On merge, `build.yml` may **re-run the cheap checks** for the component being built (lint, typecheck, unit tests) right before `oglimmer.sh build`. This matters most when frontend Dockerfiles skip those steps. Belt-and-suspenders, not a substitute for `ci.yml`.
 
 ### `if:` on filtered jobs
 

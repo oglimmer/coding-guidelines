@@ -1,6 +1,6 @@
 # Go Backend
 
-How we build HTTP APIs in Go. One option among our backends — we also ship Java Spring Boot services for some projects. When pairing with a Vue SPA, this is the default stack.
+How we build HTTP APIs in Go. It's one of our backend options — some projects ship Java Spring Boot services instead — but it's the default when pairing with a Vue SPA.
 
 **Scope:** Go HTTP + Postgres services. Does **not** apply to Java Spring ([java-spring-backend.md](java-spring-backend.md)) or MySQL-backed Go apps (use sqlx/golang-migrate patterns instead of pgx). Per-repo adoption: [assessments/go-backend.md](assessments/go-backend.md).
 
@@ -12,16 +12,16 @@ How we build HTTP APIs in Go. One option among our backends — we also ship Jav
 | Small binary, distroless image, low memory | Heavy enterprise integrations (JPA ecosystem, batch frameworks) |
 | Single static binary, embedded migrations | Existing Spring codebase or mandated JVM platform |
 
-This doc covers Go application code only. Java Spring backends share deploy plumbing ([oglimmer-sh.md](oglimmer-sh.md), [helm.md](helm.md), [github-actions.md](github-actions.md)) but not layout — see [java-spring-backend.md](java-spring-backend.md). Path mapping: [assessments/repo-map.md](assessments/repo-map.md).
+This doc covers Go application code only. Java Spring backends share the deploy plumbing ([oglimmer-sh.md](oglimmer-sh.md), [helm.md](helm.md), [github-actions.md](github-actions.md)) but not the layout — see [java-spring-backend.md](java-spring-backend.md). Path mapping: [assessments/repo-map.md](assessments/repo-map.md).
 
 ## Philosophy
 
 - **Thin entrypoint, fat `internal/`.** `cmd/server/main.go` wires config → DB → migrations → jobs → HTTP; everything else lives in packages.
-- **Transport separate from domain.** `internal/server/` is HTTP wiring only. Integrations (`email`, `slack`) and business rules get their own packages — testable without `httptest`.
-- **Env-only configuration.** One `Config` struct, no config files in production. Obvious dev defaults; reject insecure defaults at startup unless explicitly allowed.
+- **Transport separate from domain.** `internal/server/` is HTTP wiring only. Integrations (`email`, `slack`) and business rules get their own packages, testable without `httptest`.
+- **Env-only configuration.** One `Config` struct, no config files in production. Sensible dev defaults; reject insecure defaults at startup unless explicitly allowed.
 - **JSON API contract.** Errors are always `{"error": "…"}`. Browsers hitting unmatched routes get styled HTML via content negotiation.
-- **Postgres via pgx.** Tuned for PgBouncer transaction pooling. Embedded SQL migrations at startup.
-- **stdlib logging.** Single-line `log.Printf` with level prefixes. No structured logging framework unless the project outgrows this.
+- **Postgres via pgx.** Tuned for PgBouncer transaction pooling. SQL migrations are embedded and run at startup.
+- **stdlib logging.** Single-line `log.Printf` with level prefixes. No structured logging framework until the project outgrows this.
 
 ## Stack
 
@@ -75,7 +75,7 @@ backend/
     <domain>/           # other integrations / pure domain logic
 ```
 
-Module path matches the repo (`irlplanner`, `pluginskillhosting`, …). Keep `internal/` — nothing outside the module should import it.
+The module path matches the repo (`irlplanner`, `pluginskillhosting`, …). Keep `internal/` so nothing outside the module can import it.
 
 ## `cmd/server/main.go`
 
@@ -92,7 +92,7 @@ The entrypoint follows a fixed sequence:
 9. `http.Server` with `ReadHeaderTimeout` + `server.NewRouter(app)`
 10. Graceful shutdown: `srv.Shutdown` then wait for background workers (with timeout)
 
-Distroless images have no zoneinfo — embed IANA tzdata when the app uses `time.LoadLocation`:
+Distroless images have no zoneinfo, so embed IANA tzdata when the app uses `time.LoadLocation`:
 
 ```go
 import _ "time/tzdata"
@@ -103,10 +103,10 @@ import _ "time/tzdata"
 ### Rules
 
 - One `Config` struct; `Load()` is the only public entry.
-- Read env with typed helpers: `getenv(key, fallback)`, `parseInt`, `parseDuration`, `parseBool`, comma-separated lists.
+- Read env with typed helpers: `getenv(key, fallback)`, `parseInt`, `parseDuration`, `parseBool`, and comma-separated lists.
 - **Validate on load:** bad values log `WARN` and fall back — never crash on a malformed duration.
-- **Reject insecure secrets at startup:** e.g. JWT secret shorter than 32 chars or matching a published dev default, unless `ALLOW_INSECURE_JWT_SECRET=true` (local dev only).
-- Put decision logic on the struct as methods: `MCPEnabled()`, `RequiresUserApproval()` — not scattered in handlers.
+- **Reject insecure secrets at startup:** e.g. a JWT secret shorter than 32 chars or matching a published dev default, unless `ALLOW_INSECURE_JWT_SECRET=true` (local dev only).
+- Put decision logic on the struct as methods (`MCPEnabled()`, `RequiresUserApproval()`) rather than scattering it across handlers.
 - Document every env var in `.env.example` at the repo root.
 
 ### Dev vs production defaults
@@ -236,15 +236,15 @@ db.SetConnMaxIdleTime(30 * time.Second)
 db.SetConnMaxLifetime(5 * time.Minute)
 ```
 
-Ping in a retry loop (~30×, 1s backoff) at startup so the service tolerates a slow-booting Postgres.
+Ping in a retry loop at startup (~30×, 1s backoff) so the service tolerates a slow-booting Postgres.
 
 ### Migrations
 
 - Numbered files: `0001_init.sql`, `0002_profile_names.sql`, …
 - Embedded via `//go:embed migrations/….sql`
-- Registered in a `migrations` slice — adding a file requires: (1) SQL file, (2) embed var, (3) slice entry
-- Each script idempotent (`CREATE TABLE IF NOT EXISTS`, `ALTER … IF NOT EXISTS`)
-- `Migrate()` runs all in order at every startup; errors wrap the migration name
+- Registered in a `migrations` slice — adding a file requires three steps: (1) the SQL file, (2) the embed var, (3) the slice entry
+- Each script is idempotent (`CREATE TABLE IF NOT EXISTS`, `ALTER … IF NOT EXISTS`)
+- `Migrate()` runs all migrations in order at every startup; errors wrap the migration name
 
 ### `Exec` interface
 
@@ -256,7 +256,7 @@ type Exec interface {
 }
 ```
 
-Functions accepting `db.Exec` run inside or outside a transaction. Use `*sql.Tx` for multi-statement writes.
+Functions that accept `db.Exec` work both inside and outside a transaction. Use `*sql.Tx` for multi-statement writes.
 
 ### Schema conventions
 
@@ -268,7 +268,7 @@ Functions accepting `db.Exec` run inside or outside a transaction. Use `*sql.Tx`
 
 ### `Store`
 
-`internal/server/store.go` holds data-access helpers on `*Store`. New read queries go on `Store`; transactional writes may still use `a.DB` directly during incremental extraction. The goal is a testable data layer without mandating a full repository pattern on day one.
+`internal/server/store.go` holds data-access helpers on `*Store`. New read queries go on `Store`; transactional writes may still use `a.DB` directly while the data layer is extracted incrementally. The goal is a testable data layer without forcing a full repository pattern on day one.
 
 ## Domain packages (`internal/<domain>/`)
 
@@ -283,7 +283,7 @@ func (s Sender) Send(to []string, subject, body string) error
 
 Rules:
 
-- Zero value means "not configured" — callers check `Configured()` before sending.
+- The zero value means "not configured" — callers check `Configured()` before sending.
 - No HTTP imports in domain packages.
 - Colocate `*_test.go` with the package.
 - Inject into `App` at construction time in `main.go`.
@@ -314,7 +314,7 @@ func (a *App) StartReminders(ctx context.Context, wg *sync.WaitGroup) {
 Rules:
 
 - Log and continue on per-tick failures — one error never kills the loop.
-- Make work **idempotent** (claim rows, `ON CONFLICT DO NOTHING`, period keys).
+- Keep the work **idempotent** (claim rows, `ON CONFLICT DO NOTHING`, period keys).
 - Skip scheduled work when the integration is unconfigured (no SMTP → no reminder emails).
 - Derive all worker contexts from the shutdown `rootCtx`.
 
@@ -355,7 +355,7 @@ JWT roundtrips, parsers, validators — no database required.
 
 ### DB-backed tests
 
-Opt-in via env var — self-skip when unset (so `go test ./...` works without Postgres):
+Opt in via an env var, and self-skip when it's unset (so `go test ./...` works without Postgres):
 
 ```go
 func testDB(t *testing.T) *sql.DB {
@@ -371,7 +371,7 @@ func testDB(t *testing.T) *sql.DB {
 }
 ```
 
-CI sets the env var with a `services.postgres` block ([github-actions.md](github-actions.md)). Local: `compose up` + export the URL.
+CI sets the env var with a `services.postgres` block ([github-actions.md](github-actions.md)). Locally, run `compose up` and export the URL.
 
 Run with race detector in CI: `go test -race ./...`.
 

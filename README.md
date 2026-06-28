@@ -2,7 +2,7 @@
 
 Precise, opinionated conventions for how we build software. One markdown file per concept.
 
-These documents state **what we build toward** — stack choices, layout, CI shape, deploy plumbing. They stand on their own and do not assume a particular repo layout beyond the paths named in each doc.
+These documents state **what we build toward** — stack choices, layout, CI shape, deploy plumbing. Each one stands on its own and assumes no particular repo layout beyond the paths it names.
 
 **Project assessments** — which live repos match which guidelines, path mapping, gaps, and copy sources: [assessments/](assessments/).
 

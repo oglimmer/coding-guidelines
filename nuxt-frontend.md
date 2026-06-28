@@ -16,7 +16,7 @@ Per-repo adoption: [assessments/nuxt-frontend.md](assessments/nuxt-frontend.md).
 - **Nuxt 4** (`nuxt` ^4.4), Vue 3.5, TypeScript.
 - **Tailwind via module.** `@nuxtjs/tailwindcss` — exception to vue-frontend's "no CSS framework" rule.
 - **Lint:** `@nuxt/eslint` + `eslint.config.mjs`.
-- **File-based routing** under `pages/` (repo root or `app/pages/` — both appear in org repos; pick one layout per project and stay consistent).
+- **File-based routing** under `pages/` (repo root or `app/pages/` — both appear in org repos; pick one layout per project and keep to it).
 - **No Pinia by default.** Use `useState` / composables unless the app clearly needs a store.
 
 ---
@@ -68,7 +68,7 @@ Repo may live at the **monorepo root** (not under `frontend/`).
 }
 ```
 
-CI at repo root: `npm ci` → `lint` → `typecheck` → `build` (or `generate` if that is what Docker uses — **keep CI and Dockerfile aligned**).
+CI at repo root: `npm ci` → `lint` → `typecheck` → `build` (or `generate` if Docker uses that — **keep CI and Dockerfile aligned**).
 
 ### Content
 
@@ -76,7 +76,7 @@ Store structured content in `data/*.ts` (typed arrays). Blog slugs drive `pages/
 
 ### Server routes with static deploy
 
-`server/routes/*.ts` runs at **build/prerender** time when using `nuxt generate`. Routes that must execute on **every request** (live feeds, auth, webhooks) require pattern B (`node-server`) instead.
+`server/routes/*.ts` runs at **build/prerender** time when using `nuxt generate`. Routes that must run on **every request** (live feeds, auth, webhooks) need pattern B (`node-server`) instead.
 
 ### Docker
 

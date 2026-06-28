@@ -1,6 +1,6 @@
 # Java Spring Boot Backend
 
-How we build HTTP APIs in Java Spring Boot. Alternative to [go-backend.md](go-backend.md) — use Go for the standard Vue+Helm stack; use Spring when the app already lives here or needs the JVM ecosystem (JPA, Spring Security OAuth2, Spring AI, MCP).
+How we build HTTP APIs in Java Spring Boot. An alternative to [go-backend.md](go-backend.md): use Go for the standard Vue+Helm stack, and Spring when the app already lives here or needs the JVM ecosystem (JPA, Spring Security OAuth2, Spring AI, MCP).
 
 **Not in scope:** Python scrapers or other non-JVM workers. Frontend pairing: [nuxt-frontend.md](nuxt-frontend.md) (Nuxt + session) or [vue-frontend.md](vue-frontend.md) (Vue SPA + session). Per-repo adoption: [assessments/java-spring-backend.md](assessments/java-spring-backend.md).
 
@@ -10,7 +10,7 @@ How we build HTTP APIs in Java Spring Boot. Alternative to [go-backend.md](go-ba
 - **Layered packages.** `web` (controllers) → `service` → `db` (entities + repositories). DTOs for API boundaries.
 - **Schema via Flyway.** `ddl-auto: validate` — never `create` or `update` in production.
 - **Session auth for SPAs.** Cookie sessions + CSRF for browser clients; API keys or OAuth2 bearer where needed — not JWT-in-localStorage (that's the Go+Vue pattern).
-- **Context-path discipline.** Either mount the whole API under `/api` (variant A) or keep root paths and let Ingress split (variant B) — document which you chose.
+- **Context-path discipline.** Either mount the whole API under `/api` (variant A) or keep root paths and let Ingress split them (variant B) — document which you chose.
 - **Format in CI.** Spotless `check` before `verify` — same gate locally (pre-commit) and in GitHub Actions.
 
 ## Stack
@@ -71,7 +71,7 @@ news-backend/
   src/test/java/
 ```
 
-Package naming differs (`controller` vs `web`, `repository` vs `db`) — pick one layout per repo and stay consistent.
+Package names differ (`controller` vs `web`, `repository` vs `db`) — pick one layout per repo and stick with it.
 
 ## Configuration
 
@@ -97,7 +97,7 @@ Custom app keys under `app:` or a dedicated prefix (`deepseek:`, `github:`).
 
 ### Variant A specifics
 
-- **`server.servlet.context-path: /api`** — all controllers are relative to `/api`. Ingress and Nuxt devProxy must include this prefix.
+- **`server.servlet.context-path: /api`** — all controllers sit under `/api`. Ingress and Nuxt devProxy must include this prefix.
 - **`server.forward-headers-strategy: framework`** — trust `X-Forwarded-*` behind Ingress.
 - **OAuth2 client** registration for GitHub (and optional GitLab) under `spring.security.oauth2.client`.
 
@@ -108,11 +108,11 @@ Custom app keys under `app:` or a dedicated prefix (`deepseek:`, `github:`).
 - **Split config:** `spring.config.import: classpath:news-properties.yml` for tunables.
 - **No global context-path** — API lives at `/api/v1/...` via controller `@RequestMapping`.
 
-Mirror every secret and URL in Helm values comments and `.env.example` at repo root.
+Mirror every secret and URL in Helm values comments and in `.env.example` at the repo root.
 
 ## Security (SPA + session)
 
-Both production Spring apps serve a browser SPA. Pattern:
+Both production Spring apps serve a browser SPA. The pattern:
 
 | Concern | Approach |
 |---------|----------|
@@ -139,11 +139,11 @@ Variant B adds:
 
 ## HTTP API contract
 
-Align with what the frontend expects:
+Match what the frontend expects:
 
-- Errors: consistent JSON body (e.g. `GlobalExceptionHandler` → `{"error": "…"}` or problem-details — match the SPA's parser).
+- Errors: a consistent JSON body (e.g. `GlobalExceptionHandler` → `{"error": "…"}` or problem-details — match the SPA's parser).
 - **401** for unauthenticated XHR, not an HTML login redirect.
-- Version/build info via Actuator `info` or a dedicated endpoint if the UI footer needs it.
+- Version/build info via Actuator `info`, or a dedicated endpoint if the UI footer needs it.
 
 Document public vs authenticated routes in controller JavaDoc — Ingress path lists depend on it.
 
@@ -157,9 +157,9 @@ Document public vs authenticated routes in controller JavaDoc — Ingress path l
 | `ddl-auto` | `validate` in all deployed profiles |
 | Postgres major bumps | Disable in [renovate.md](renovate.md) when chart bundles Postgres |
 
-Variant A: PostgreSQL + `flyway-database-postgresql` + Boot 4 `spring-boot-flyway` starter (required for migrations to run).
+Variant A: PostgreSQL + `flyway-database-postgresql` + the Boot 4 `spring-boot-flyway` starter (required for migrations to run).
 
-Variant B: `flyway-mysql` + MariaDB driver; Redis is separate infrastructure (not Flyway).
+Variant B: `flyway-mysql` + MariaDB driver. Redis is separate infrastructure, not Flyway.
 
 ## Docker
 
@@ -175,7 +175,7 @@ Multi-stage Maven build → JRE runtime:
 | A | `jammy` JRE, non-root `spring` user, `curl` for HEALTHCHECK on `/api/actuator/health` |
 | B | `alpine` JRE, `-XX:UseSVE=0` for arm64; prefer non-root user |
 
-Bake no secrets. Configure via env vars from Helm / SealedSecret.
+Bake in no secrets. Configure via env vars from Helm / SealedSecret.
 
 See [docker.md](docker.md) for registry tagging via [oglimmer-sh.md](oglimmer-sh.md).
 
@@ -206,7 +206,7 @@ Java repos use **Spotless + verify**, not gofmt:
   entry: bash -c "cd backend && ./mvnw -B verify"
 ```
 
-Java repos typically run Spotless locally and in CI; add gitleaks/trufflehog as needed.
+Java repos typically run Spotless both locally and in CI; add gitleaks/trufflehog as needed.
 
 ## Deploy integration
 

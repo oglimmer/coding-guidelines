@@ -20,6 +20,6 @@ Per-repo adoption for [../helm.md](../helm.md). Last verified: June 2026.
 | video-msg | ✅ `video-msg` | ❌ | `helm/sealed-database-secret.yaml` | ✅ `/api` before SPA | Backend PVC for `video-storage` (50Gi default) |
 | status-tacos | ✅ chart at **`helm/`** root | ❌ | `helm/sealed-database-secret.yaml` | ✅ `/api` before SPA | cert-manager TLS; external MariaDB |
 
-**Disclosed gaps:** only `irl-planner-pro` and `plugin-skill-hosting` use the `helm/argocd/{app,secret-app,sealed-secret}` layout — migrate siblings when adopting GitOps. Bundled-Postgres repos without Renovate major freeze: `trivia`, `plugin-skill-hosting` ([renovate.md](renovate.md) assessment).
+**Disclosed gaps:** Only `irl-planner-pro` and `plugin-skill-hosting` use the `helm/argocd/{app,secret-app,sealed-secret}` layout; migrate the other repos when adopting GitOps. Bundled-Postgres repos without a Renovate major freeze: `trivia`, `plugin-skill-hosting` (see [renovate.md](renovate.md) assessment).
 
 **Valid deviations:** `deep-digest-rss` chart models four workloads (frontend, backend, scraper, taggroupper) — one chart, many Deployments, not the two-component template.

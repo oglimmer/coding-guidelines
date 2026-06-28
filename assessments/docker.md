@@ -23,4 +23,4 @@ Per-repo adoption for [../docker.md](../docker.md). Last verified: June 2026.
 
 **Disclosed gaps:** `trivia` missing `.dockerignore`; `yt-infographics` needs `renovate.json` + compose story; `easy-host-k8s` should stop building images in GitHub Actions directly ([github-actions.md](github-actions.md) assessment).
 
-**Valid deviations:** `deep-digest-rss` three-component layout is documented in [../oglimmer-sh.md](../oglimmer-sh.md) shape B, not this doc's `backend/`/`frontend/` paths.
+**Valid deviations:** `deep-digest-rss` uses a three-component layout, documented as shape B in [../oglimmer-sh.md](../oglimmer-sh.md) rather than this doc's `backend/`/`frontend/` paths.

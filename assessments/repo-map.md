@@ -1,6 +1,6 @@
 # Repo map
 
-How audited org repos relate to the coding guidelines. Read this before copying patterns from a sibling — **path names and stacks differ**.
+How audited org repos map to the coding guidelines. Read this before copying patterns from a sibling — **path names and stacks differ**.
 
 Last verified: June 2026 (files on disk under `/Users/oli/dev/`).
 
@@ -60,7 +60,7 @@ Only irl-planner-pro today (target for Vue+Go siblings):
 
 **picz → picz2:** same product family; `picz` is the legacy stack, `picz2` (`photo-upload` chart) is the K8s rewrite.
 
-**video-msg:** Go rewrite in `backend-go/` is active; Java `backend/` is deprecated but still wired in stale `ci.yml` and pre-commit.
+**video-msg:** the Go rewrite in `backend-go/` is active; Java `backend/` is deprecated but still wired into a stale `ci.yml` and pre-commit.
 
 ## Path mapping (guideline path → repo path)
 
@@ -76,7 +76,7 @@ Only irl-planner-pro today (target for Vue+Go siblings):
 
 ## Maturity tiers (deploy plumbing)
 
-Use tiers when planning bring-up work — not a judgment of app quality.
+Use tiers to plan bring-up work — they are not a judgment of app quality.
 
 | Tier | Definition | Repos today |
 |------|------------|-------------|
@@ -100,7 +100,7 @@ Use tiers when planning bring-up work — not a judgment of app quality.
 
 ## Release flow variants
 
-Not all `release` commands are equal:
+The `release` commands differ from repo to repo:
 
 | Variant | Repos | What happens |
 |---------|-------|--------------|

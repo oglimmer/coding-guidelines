@@ -2,17 +2,17 @@
 
 How we containerize full-stack apps: multi-stage builds, pinned base images, build metadata, local compose, and CI deploy via `oglimmer.sh`.
 
-This doc assumes a **Vue + Go** two-image layout (`backend/` + `frontend/`). Other stacks (Java, Nuxt, multi-component, server-rendered Go) need stack-specific Dockerfiles — see [java-spring-backend.md](java-spring-backend.md), [nuxt-frontend.md](nuxt-frontend.md), [oglimmer-sh.md](oglimmer-sh.md). Per-repo adoption: [assessments/docker.md](assessments/docker.md).
+This doc assumes a **Vue + Go** two-image layout (`backend/` + `frontend/`). Other stacks (Java, Nuxt, multi-component, server-rendered Go) need their own Dockerfiles — see [java-spring-backend.md](java-spring-backend.md), [nuxt-frontend.md](nuxt-frontend.md), [oglimmer-sh.md](oglimmer-sh.md). For per-repo adoption, see [assessments/docker.md](assessments/docker.md).
 
 ## Philosophy
 
 - **Multi-stage builds.** Compile in a fat image; ship a minimal runtime image.
 - **Pin base images to digests.** Tags are mutable; `@sha256:…` is not. Renovate keeps digests current ([renovate.md](renovate.md)).
-- **Bake build metadata.** `VERSION`, `GIT_COMMIT`, `BUILD_TIME` injected at build time; surfaced at runtime for diagnostics.
+- **Bake build metadata.** Inject `VERSION`, `GIT_COMMIT`, and `BUILD_TIME` at build time; expose them at runtime for diagnostics.
 - **Static Go binaries.** `CGO_ENABLED=0`, strip with `-ldflags "-s -w"`, inject via `-X`.
 - **Non-root at runtime.** Distroless or nginx's own user model; drop all capabilities in Kubernetes.
 - **Local dev via compose.** Postgres healthcheck-gated; full env surface mirrored in `.env.example`.
-- **ARC builds use plain docker.** `--platform auto` → native `docker build` + `docker push`; avoid buildx docker-container driver on the cluster ([github-actions.md](github-actions.md)).
+- **ARC builds use plain docker.** `--platform auto` runs native `docker build` + `docker push`; avoid the buildx docker-container driver on the cluster ([github-actions.md](github-actions.md)).
 
 ## Layout
 
@@ -61,8 +61,8 @@ Rules:
 
 - Copy `go.mod` + `go.sum` before source for layer caching.
 - `-trimpath` for reproducible paths.
-- Runtime image has no shell — if you need one for debugging, use `distroless/debug` only in dev.
-- `internal/buildinfo` package holds `Version`, `Commit`, `Time` vars set by ldflags.
+- The runtime image has no shell. If you need one for debugging, use `distroless/debug`, and only in dev.
+- The `internal/buildinfo` package holds the `Version`, `Commit`, and `Time` vars set by ldflags.
 
 ## Frontend Dockerfile
 
@@ -91,9 +91,9 @@ EXPOSE 80
 
 Rules:
 
-- Vite env vars must be `ARG` + `ENV` before `npm run build` — they are compile-time, not runtime.
-- nginx serves the SPA only. API routes go through Kubernetes Ingress, not nginx `proxy_pass`.
-- Security headers live in a separate snippet file included by `nginx.conf`.
+- Set Vite env vars as `ARG` + `ENV` before `npm run build` — they are compile-time, not runtime.
+- nginx serves only the SPA. API routes go through Kubernetes Ingress, not nginx `proxy_pass`.
+- Security headers live in a separate snippet file that `nginx.conf` includes.
 
 ## `.dockerignore`
 
@@ -152,8 +152,8 @@ Rules:
 
 - Pin Postgres image to a digest.
 - Gate backend on `service_healthy`, not just `depends_on`.
-- Mirror every env var the backend reads in `.env.example` with dev-safe defaults.
-- Use explicit dev placeholders (`ALLOW_INSECURE_JWT_SECRET`, `AUTH_MODE=password`) only for local boot — document that production must not set them.
+- Mirror every env var the backend reads in `.env.example`, with dev-safe defaults.
+- Use explicit dev placeholders (`ALLOW_INSECURE_JWT_SECRET`, `AUTH_MODE=password`) only for local boot, and document that production must not set them.
 
 ## `oglimmer.sh` — build, push, restart
 
@@ -185,15 +185,15 @@ Every deployable repo has a root `oglimmer.sh` that wraps docker build/push and 
 Backend: `VERSION`, `GIT_COMMIT`, `BUILD_TIME`.
 Frontend: `VITE_APP_VERSION`, `VITE_GIT_COMMIT`, `VITE_BUILD_TIME`.
 
-`oglimmer.sh` reads version from the single source of truth (`frontend/package.json`) and passes current git SHA + timestamp.
+`oglimmer.sh` reads the version from the single source of truth (`frontend/package.json`) and passes the current git SHA and timestamp.
 
 ### Restart without kubectl
 
 CI runners have no cluster access. `oglimmer.sh` must:
 
-- Accept **kubectl OR `RESTART_TOKEN`** — not require kubectl unconditionally.
+- Accept **kubectl OR `RESTART_TOKEN`** — don't require kubectl unconditionally.
 - POST to `${RESTART_HOOK_URL:-https://restart.oglimmer.com/restart}/<ns>/<deployment>` with `Authorization: Bearer $RESTART_TOKEN`.
-- Prefer kubectl when present (local dev); fall back to the hook in CI.
+- Prefer kubectl when present (local dev), and fall back to the hook in CI.
 - Never echo the token.
 
 Default image names: `ghcr.io/oglimmer/<repo>-backend` and `ghcr.io/oglimmer/<repo>-frontend`.
@@ -216,7 +216,7 @@ See [github-actions.md](github-actions.md).
 | `:vX.Y.Z` + `:latest` | Release tag push | `release.yml` multi-arch |
 | `@sha256:…` | Helm values / ArgoCD | Pin deployment to digest |
 
-ArgoCD image-updater pins by digest; that's why `cleanup-images.yml` exists.
+ArgoCD image-updater pins by digest, which is why `cleanup-images.yml` exists.
 
 ## New-repo checklist
 

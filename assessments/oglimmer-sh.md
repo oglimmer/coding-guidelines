@@ -1,6 +1,6 @@
 # oglimmer.sh — project assessment
 
-Per-repo adoption for [../oglimmer-sh.md](../oglimmer-sh.md). Last verified: June 2026.
+Per-repo adoption of [../oglimmer-sh.md](../oglimmer-sh.md). Last verified: June 2026.
 
 | Repo | Shape | Registry | Namespace env | Restart hook | `PLATFORM` default | CI `--platform auto` |
 |------|-------|----------|---------------|--------------|-------------------|----------------------|
@@ -23,15 +23,15 @@ Per-repo adoption for [../oglimmer-sh.md](../oglimmer-sh.md). Last verified: Jun
 
 **Naming splits (valid, document when copying):**
 
-- `RESTART_NAMESPACE` (`irl-planner-pro`, `plugin-skill-hosting`, `start-renovate`, `yt-infographics`) vs `K8S_NAMESPACE` (`trivia`, `linky`, `deep-digest-rss`) — same hook URL shape, different variable name.
+- `RESTART_NAMESPACE` (`irl-planner-pro`, `plugin-skill-hosting`, `start-renovate`, `yt-infographics`) vs `K8S_NAMESPACE` (`trivia`, `linky`, `deep-digest-rss`) — same hook URL shape, just a different variable name.
 - Image suffixes: `<repo>-frontend`/`-backend` vs `start-renovate-fe`/`start-renovate-be` vs `news-frontend`/`news-backend`.
 
 **Disclosed gaps:**
 
-- **`easy-host-k8s`:** `restart_deployment` is kubectl-only (no hook); CI references removed `backend/` Maven tree — rewrite CI before trusting this repo as a template ([repo-map.md](repo-map.md)).
-- **`linky`:** large custom script (~1400 lines) mapping `-f`/`-b` to `client`/`server` — works, but harder to diff against template A.
+- **`easy-host-k8s`:** `restart_deployment` uses kubectl only (no hook), and CI still references the removed `backend/` Maven tree. Rewrite CI before trusting this repo as a template ([repo-map.md](repo-map.md)).
+- **`linky`:** a large custom script (~1400 lines) maps `-f`/`-b` to `client`/`server`. It works, but is harder to diff against template A.
 
-**Valid deviations:** `deep-digest-rss` shape B with `get_deployments()` returning multiple K8s deployments per component (scraper → `news-scraper` + `news-taggroupper`). `deep-digest-rss` uses plain `docker build` without `PLATFORM` branching — appropriate for its script age.
+**Valid deviations:** `deep-digest-rss` is shape B, with `get_deployments()` returning multiple K8s deployments per component (scraper → `news-scraper` + `news-taggroupper`). It uses plain `docker build` without `PLATFORM` branching, which suits the age of its script.
 
 ## Release flow by repo
 

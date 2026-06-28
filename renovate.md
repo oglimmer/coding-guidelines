@@ -21,7 +21,7 @@ renovate.json    # repo root — always this name
 ```
 
 - Always include `$schema` for editor autocomplete.
-- Pick one config file per repo. Multiple locations (`renovate.json5`, `.github/renovate.json`, …) is undefined behaviour — don't mix.
+- Pick one config file per repo. Mixing locations (`renovate.json5`, `.github/renovate.json`, …) is undefined behaviour — don't.
 - For non-trivial overrides, `renovate.json5` (JSON5 with comments) is fine. Most repos use plain `renovate.json`.
 
 ## Standard config
@@ -113,7 +113,7 @@ These seven rules are the same in every repo unless noted. Order matters — bro
 
 `{{manager}}` expands to `npm`, `gomod`, `dockerfile`, `github-actions`, etc. One grouped PR per manager per cycle.
 
-Only include managers that actually exist in the repo. If a repo has no Maven, the rule simply never matches `maven` — no harm. For repos that predate the `{{manager}}` template, per-manager rules (`matchManagers: ["npm"]`, `groupName: "npm dependencies"`) are equivalent.
+Only include managers the repo actually uses. If a repo has no Maven, the rule just never matches `maven` — no harm. For repos that predate the `{{manager}}` template, per-manager rules (`matchManagers: ["npm"]`, `groupName: "npm dependencies"`) work the same way.
 
 ### 2. Automerge non-major updates
 
@@ -224,7 +224,7 @@ Add these **after** the standard rules. Document the reason in `description` —
 
 ### Bundled Postgres — disable major bumps
 
-When the app ships an in-cluster Postgres whose data directory is tied to a major version, never offer a major image bump via Renovate. Major upgrades need a deliberate `pg_upgrade` or dump+restore.
+When the app ships an in-cluster Postgres whose data directory is tied to a major version, never let Renovate offer a major image bump. A major upgrade needs a deliberate `pg_upgrade` or dump+restore.
 
 ```json
 {

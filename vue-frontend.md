@@ -107,7 +107,7 @@ server: {
 },
 ```
 
-Add every path the backend serves that the browser calls directly (`/mcp`, `/oauth`, `/.well-known/…`). Keep proxy list in sync with [docker.md](docker.md) `nginx.conf` and [helm.md](helm.md) ingress paths.
+Add every path the backend serves that the browser calls directly (`/mcp`, `/oauth`, `/.well-known/…`). Keep the proxy list in sync with [docker.md](docker.md) `nginx.conf` and [helm.md](helm.md) ingress paths.
 
 ### Build metadata
 
@@ -353,7 +353,7 @@ Rules:
 
 - `THEMES` registry maps `id` → `html[data-theme="…"]` block in CSS.
 - `applyTheme(getStoredTheme())` in `main.ts` before mount.
-- **Inline script in `index.html`** applies theme from `localStorage` before the bundle loads — prevents flash-of-wrong-theme. Keep theme id lists in sync between `theme.ts` and `index.html`.
+- **Inline script in `index.html`** applies the theme from `localStorage` before the bundle loads — prevents flash-of-wrong-theme. Keep the theme id lists in sync between `theme.ts` and `index.html`.
 
 ## Testing
 
@@ -369,7 +369,7 @@ Rules:
 
 ### `test-setup.ts`
 
-Install an in-memory `localStorage` shim on `globalThis` and `window` — Node's experimental built-in shadows jsdom's, and the app uses bare `localStorage` (not `window.localStorage` explicitly).
+Install an in-memory `localStorage` shim on `globalThis` and `window`. Node's experimental built-in shadows jsdom's, and the app uses bare `localStorage` rather than an explicit `window.localStorage`.
 
 ### MSW
 

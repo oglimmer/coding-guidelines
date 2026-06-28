@@ -169,7 +169,7 @@ paths:
 
 Template rules:
 
-- List optional paths (`/metrics`, `/mcp`, `/oauth`, `/.well-known/*`) in the ingress template **before** the values-driven path loop when they are feature-gated.
+- When optional paths (`/metrics`, `/mcp`, `/oauth`, `/.well-known/*`) are feature-gated, list them in the ingress template **before** the values-driven path loop.
 - Use `pathType: Exact` for probe and metrics paths; `Prefix` for API and SPA.
 - Match `nginx.ingress.kubernetes.io/proxy-body-size` to the backend's upload cap.
 - SSE endpoints need long proxy timeouts and buffering off — document in values comments.

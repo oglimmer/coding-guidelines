@@ -16,7 +16,7 @@ Audited: `irl-planner-pro`, `plugin-skill-hosting`, `trivia`, `linky`, `yt-infog
 | start-renovate | ✅ Java + Nuxt | ✅ | ❌ | ❌ | ❌ | Not Vue+Go path filters |
 | homepage-v4 | ✅ Nuxt `ci.yml` | ❌ | ❌ | ❌ | ❌ | Lint + typecheck + build only; no ARC `build.yml` |
 | coffee-diary | ❌ | ❌ | ❌ | ❌ | ❌ | **No `.github/workflows/`** — README references missing `build.yml` |
-| boardwalk-billionaire | ✅ `ci.yaml` | ✅ SHA pins + hook | ❌ | ❌ | ❌ | Filters `client/` + `server/`; rename `ci.yaml` → `ci.yml` optional |
+| boardwalk-billionaire | ✅ `ci.yaml` | ✅ SHA pins + hook | ❌ | ❌ | ❌ | Filters `client/` + `server/`; optional rename `ci.yaml` → `ci.yml` |
 | cybernight | ❌ | ❌ | ❌ | ❌ | ❌ | **No `.github/workflows/`** — add `ci.yml` + ARC `build.yml` |
 | picz | ❌ | ❌ | ❌ | ❌ | ❌ | Legacy AWS deploy; no CI |
 | picz2 | ❌ | ❌ | ❌ | ❌ | ❌ | **No workflows** — add `ci.yml` + `arc-picz2` `build.yml` |

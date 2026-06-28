@@ -172,7 +172,7 @@ Unauthenticated, read-only, no secrets. Register the route **before** auth middl
 
 ### Java Spring backend
 
-Prefer Spring Boot **Actuator** `GET /api/actuator/info` (or `/actuator/info` behind ingress) with `build.version` and `git.commit.id` from `spring-boot-maven-plugin` / `git-commit-id-plugin`, or a thin wrapper matching the Go JSON shape above.
+Prefer Spring Boot **Actuator** `GET /api/actuator/info` (or `/actuator/info` behind ingress), exposing `build.version` and `git.commit.id` from `spring-boot-maven-plugin` / `git-commit-id-plugin`. Otherwise, use a thin wrapper matching the Go JSON shape above.
 
 Align ingress so the SPA can reach the info endpoint on the same host (`/api/actuator/info` before SPA catch-all).
 

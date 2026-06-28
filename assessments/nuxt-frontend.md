@@ -2,7 +2,7 @@
 
 Per-repo adoption for [../nuxt-frontend.md](../nuxt-frontend.md). Last verified: June 2026.
 
-**In scope:** Nuxt 4 repos only. Vue 3 + Vite apps (e.g. `deep-digest-rss/news-frontend`) belong in [vue-frontend.md](vue-frontend.md) assessment.
+**In scope:** Nuxt 4 repos only. Vue 3 + Vite apps (e.g. `deep-digest-rss/news-frontend`) belong in the [vue-frontend.md](vue-frontend.md) assessment.
 
 | Topic | homepage-v4 | start-renovate |
 |-------|-------------|----------------|
@@ -17,6 +17,6 @@ Per-repo adoption for [../nuxt-frontend.md](../nuxt-frontend.md). Last verified:
 | `build.yml` / ARC | ❌ | ✅ |
 | oglimmer image | `homepage-oglimmer-2025` | `start-renovate-fe` |
 
-**homepage-v4 gaps:** no `build.yml` (image push manual or external); CI runs `nuxt build` but Dockerfile runs `nuxt generate` — align before treating as template; `/rss` server route may not exist in static output unless prerendered.
+**homepage-v4 gaps:** no `build.yml`, so image pushes are manual or external; CI runs `nuxt build` but the Dockerfile runs `nuxt generate` — align these before treating it as a template; the `/rss` server route may be missing from the static output unless prerendered.
 
-**start-renovate:** reference implementation for pattern B (Nuxt + Spring).
+**start-renovate:** the reference implementation for pattern B (Nuxt + Spring).

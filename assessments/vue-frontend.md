@@ -21,6 +21,6 @@ Per-repo adoption for [../vue-frontend.md](../vue-frontend.md). Last verified: J
 | video-msg | `frontend/` | ✅ type-check + build | ⚠️ `ApiService` fetch class | `views/` + Vitest + Playwright | Pinia; Prettier present; screen recording upload flow |
 | status-tacos | `frontend/` | ✅ type-check + build | ⚠️ `ApiService` fetch + OIDC | `views/` + Vitest + Playwright | Pinia; Prettier; multi-tenant dashboards |
 
-**Disclosed gaps:** align `plugin-skill-hosting` `build` script; document or migrate `trivia`/`deep-digest-rss` `pages/` vs `views/` naming; `linky/client` needs lint/test scripts.
+**Disclosed gaps:** align the `plugin-skill-hosting` `build` script; document or migrate the `pages/` vs `views/` naming in `trivia` and `deep-digest-rss`; add lint/test scripts to `linky/client`.
 
 **Valid deviations:** split API modules (`services/api/`, `api/news.ts`) are fine when `ApiError` + auth header logic stay centralized; `pages/` vs `views/` is cosmetic if router lazy-loads consistently.

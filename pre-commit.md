@@ -1,16 +1,16 @@
 # Pre-commit
 
-Local git hooks that catch problems before they reach CI. Fast, auto-fixing checks run on every commit; slow build/test gates run on push.
+Local git hooks catch problems before they reach CI. Fast, auto-fixing checks run on every commit; slow build and test gates run on push.
 
 Per-repo adoption: [assessments/pre-commit.md](assessments/pre-commit.md). Path mapping for non-standard layouts: [assessments/repo-map.md](assessments/repo-map.md).
 
 ## Philosophy
 
 - **Mirror CI, don't duplicate it entirely.** Commit hooks run the cheap half of `ci.yml`; pre-push runs the slow gates (build, test).
-- **Auto-fix when possible.** `gofmt -w`, `eslint --fix`, trailing-whitespace — fix in place, fail the hook if files changed, re-stage.
-- **Use the project's toolchain.** Go, npm, and helm hooks are `language: system` / `repo: local` so they use the repo's exact versions and config.
-- **Pin upstream hook repos.** `rev:` on every third-party `repo:` entry.
-- **Exclude generated and binary files.** Lockfiles, encrypted files, and Helm templates must not be touched by text-munging hooks.
+- **Auto-fix when possible.** `gofmt -w`, `eslint --fix`, trailing-whitespace — fix in place, fail the hook if files changed, then re-stage.
+- **Use the project's toolchain.** Go, npm, and helm hooks use `language: system` / `repo: local`, so they pick up the repo's exact versions and config.
+- **Pin upstream hook repos.** Set `rev:` on every third-party `repo:` entry.
+- **Exclude generated and binary files.** Text-munging hooks must not touch lockfiles, encrypted files, or Helm templates.
 
 ## Setup
 
@@ -50,7 +50,7 @@ exclude: |
   )$
 ```
 
-Helm `templates/` are Go-templated YAML — exclude them from `check-yaml` and `yamllint`; `helm lint` covers the chart.
+Helm `templates/` are Go-templated YAML, so exclude them from `check-yaml` and `yamllint`. `helm lint` covers the chart instead.
 
 ## Hook tiers
 
@@ -110,6 +110,7 @@ rules:
 
 `gofmt -s -w` rewrites in place. If the hook changes files, the commit fails — re-stage the formatted code and commit again.
 
+
 ### On `commit` — Vue/TS frontend (`repo: local`)
 
 ```yaml
@@ -122,7 +123,7 @@ rules:
   files: ^frontend/.*\.(ts|tsx|vue)$
 ```
 
-ESLint runs on commit (with fix). Typecheck can run on commit or pre-push depending on speed — prefer pre-push when `vue-tsc` is slow.
+ESLint runs on commit with fix enabled. Typecheck can run on commit or pre-push depending on speed — prefer pre-push when `vue-tsc` is slow.
 
 ### On `pre-push` — slow gates
 
@@ -136,7 +137,7 @@ Mark with `stages: [pre-push]`:
 | `vitest` | `cd frontend && npm run test` |
 | `helm-lint` | `helm lint helm/<chart>` |
 
-Pre-push mirrors the full `ci.yml` pipeline so a green push is likely a green CI run.
+Pre-push mirrors the full `ci.yml` pipeline, so a green push usually means a green CI run.
 
 ### On `commit` — Helm
 
@@ -149,7 +150,7 @@ Pre-push mirrors the full `ci.yml` pipeline so a green push is likely a green CI
 
 ## Multi-component repos
 
-When a repo ships more than one deployable surface (`frontend/` + `backend/` + `admin/`, or `frontend/` + `frontend2/` + Java `backend/`), define **one hook block per component** — each with its own `files:` prefix and `working-directory`:
+When a repo ships more than one deployable surface (`frontend/` + `backend/` + `admin/`, or `frontend/` + `frontend2/` + Java `backend/`), define **one hook block per component**, each with its own `files:` prefix and `working-directory`:
 
 ```yaml
 # Frontend
@@ -171,15 +172,15 @@ When a repo ships more than one deployable surface (`frontend/` + `backend/` + `
   pass_filenames: false
 ```
 
-Mirror the same step order as that component's CI job (lint → typecheck → test → build). A change under `admin/` must not run `frontend/` hooks and vice versa — `files:` prefixes enforce that locally the same way `paths:` filters do in CI.
+Mirror each component's CI job step order (lint → typecheck → test → build). A change under `admin/` must not run `frontend/` hooks, and vice versa — `files:` prefixes enforce this locally the same way `paths:` filters do in CI.
 
 If CI is split into per-component workflow files, pre-commit blocks should still map 1:1 to those files' check steps.
 
 ## Minimal config (smaller repos)
 
-Not every repo needs the full stack on day one. A minimal config (gofmt, vet, build, eslint, vue-tsc all on commit) is acceptable when the repo is smaller and tests are fast. Scale up to the commit/pre-push split as the test suite grows.
+Not every repo needs the full stack on day one. A minimal config (gofmt, vet, build, eslint, vue-tsc all on commit) is fine for a smaller repo with fast tests. Move to the commit/pre-push split as the test suite grows.
 
-Always keep: hygiene hooks, secret scanning, and whatever matches your `ci.yml`.
+Always keep hygiene hooks, secret scanning, and whatever matches your `ci.yml`.
 
 ## New-repo checklist
 

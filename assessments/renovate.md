@@ -21,4 +21,4 @@ Per-repo adoption for [../renovate.md](../renovate.md). Last verified: June 2026
 | video-msg | ✅ | ✅ | n/a | npm + gomod + maven (deprecated BE) + docker |
 | status-tacos | ✅ | ✅ | n/a | npm + maven + docker |
 
-**Disclosed gaps:** add `renovate.json` to `yt-infographics`; copy the Postgres major-freeze `packageRule` from `irl-planner-pro` into any repo whose Helm chart bundles Postgres (`trivia`, `plugin-skill-hosting`).
+**Disclosed gaps:** add a `renovate.json` to `yt-infographics`. Copy the Postgres major-freeze `packageRule` from `irl-planner-pro` into any repo whose Helm chart bundles Postgres (`trivia`, `plugin-skill-hosting`).

@@ -20,6 +20,6 @@ Per-repo adoption for [../pre-commit.md](../pre-commit.md). Last verified: June 
 | video-msg | 🔀 Java on deprecated BE | ❌ | ❌ | gitleaks + trufflehog + spotless (`backend/`) + eslint; helm-lint; **no Go hooks** |
 | status-tacos | 🔀 Maven+Vue | ❌ | ❌ | gitleaks + trufflehog + spotless + eslint + typecheck; helm-lint |
 
-**Disclosed gaps:** roll the `irl-planner-pro` pre-commit stack to `plugin-skill-hosting` and `trivia` first (same stack); add at least shellcheck + `oglimmer.sh` to every repo that has an `oglimmer.sh`. Java/Spring repos (`deep-digest-rss`, `start-renovate`) need a separate hook set — do not force Vue+Go hooks there.
+**Disclosed gaps:** roll the `irl-planner-pro` pre-commit stack out to `plugin-skill-hosting` and `trivia` first, since they share the same stack. Add at least shellcheck plus `oglimmer.sh` to every repo that has an `oglimmer.sh`. Java/Spring repos (`deep-digest-rss`, `start-renovate`) need their own hook set — do not force Vue+Go hooks there.
 
 **Valid deviation:** smaller repos may keep all hooks on `commit` until test runtime forces a pre-push split (`plugin-skill-hosting`, `trivia` today).

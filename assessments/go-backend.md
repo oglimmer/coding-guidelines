@@ -19,6 +19,6 @@ Per-repo adoption for [../go-backend.md](../go-backend.md). Last verified: June 
 | picz2 | ❌ Java | Spring Boot | MariaDB+MinIO | Flyway | **Out of scope** |
 | video-msg | 🔀 **`backend-go/`** | chi `internal/handler` | **MariaDB** `database/sql` | golang-migrate SQL | FFmpeg re-encoding; deprecated Java `backend/` still in CI/pre-commit |
 
-**Disclosed gaps:** `trivia` should move toward `internal/server` + embedded migrations + pgx stdlib settings when touched; `yt-infographics` needs proper layout if it grows beyond a thin API.
+**Disclosed gaps:** When next touched, `trivia` should move to `internal/server`, embedded migrations, and pgx stdlib settings. `yt-infographics` needs a proper layout if it grows beyond a thin API.
 
 **Valid deviations:** `plugin-skill-hosting` `cmd/marketplace` is historical naming. MySQL repos (`linky`, `easy-host-k8s`) correctly use their own drivers — do not force pgx patterns from this doc.

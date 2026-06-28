@@ -2,7 +2,7 @@
 
 The repo-root management script for build, push, rollout, release, and local dev. Every deployable project has one. CI calls it from `build.yml`; developers run it locally.
 
-Onboard new repos with the `/setup-arc-build` skill. Per-repo adoption and script shapes: [assessments/oglimmer-sh.md](assessments/oglimmer-sh.md).
+Use the `/setup-arc-build` skill to onboard new repos. For per-repo adoption and script shapes, see [assessments/oglimmer-sh.md](assessments/oglimmer-sh.md).
 
 ## Philosophy
 
@@ -10,7 +10,7 @@ Onboard new repos with the `/setup-arc-build` skill. Per-repo adoption and scrip
 - **Works locally and in CI.** kubectl when the developer has cluster access; restart hook when the ARC runner does not.
 - **Fail before build, not after.** Validate docker, restart credentials, and platform support up front in `check_prerequisites` / `validate_dependencies`.
 - **Never echo secrets.** `RESTART_TOKEN` is redacted in dry-run output (`Bearer ***`).
-- **Version lives in one place.** `frontend/package.json` `version` is the semver source of truth; the script propagates it to images, Helm, and git tags. Full rules: [versioning-release.md](versioning-release.md).
+- **Version lives in one place.** The `version` in `frontend/package.json` is the semver source of truth; the script propagates it to images, Helm, and git tags. For full rules, see [versioning-release.md](versioning-release.md).
 - **Shellcheck-clean.** Add `.shellcheckrc` for known false positives (e.g. sourced `.env`).
 
 ## What it does
@@ -29,11 +29,11 @@ Cross-links: [docker.md](docker.md) (Dockerfiles), [github-actions.md](github-ac
 
 ## Two script shapes
 
-Most repos copy one of these templates and customize the names.
+Most repos copy one of these templates and rename to fit.
 
 ### A. Full-stack (Vue + Go + Helm)
 
-Default shape for Vue + Go (or similar two-component) full-stack apps.
+The default shape for Vue + Go (or similar two-component) full-stack apps.
 
 ```
 ./oglimmer.sh [COMMAND] [OPTIONS]
@@ -70,7 +70,7 @@ For repos with three or more buildable components (e.g. frontend + backend + wor
 ./oglimmer.sh build [OPTIONS]
 ```
 
-**Component flags:** per-component (`-f`, `-b`, `-s`, …) or `--all`. At least one flag required.
+**Component flags:** one per component (`-f`, `-b`, `-s`, …) or `--all`. At least one flag is required.
 
 **Customize with helper functions:**
 
@@ -82,7 +82,7 @@ get_deployments()    # component → one or more K8s deployment names
 
 One component can restart **multiple deployments** (e.g. scraper → `news-scraper` + `news-taggroupper`).
 
-Uses `K8S_NAMESPACE` instead of `RESTART_NAMESPACE`. Often adds `-B` / `--build-only` and `-p` / `--push-only` for split phases.
+Uses `K8S_NAMESPACE` instead of `RESTART_NAMESPACE`. Often adds `-B` / `--build-only` and `-p` / `--push-only` to split the phases.
 
 ## Standard options (full-stack)
 
@@ -100,7 +100,7 @@ Uses `K8S_NAMESPACE` instead of `RESTART_NAMESPACE`. Often adds `-B` / `--build-
 
 \* **CI must pass `--platform auto` explicitly** — see [Platform](#platform-build-mode) below.
 
-If `--no-push` is set with restart enabled, the script auto-disables restart (nothing new to roll out).
+If `--no-push` is set while restart is enabled, the script auto-disables restart (there is nothing new to roll out).
 
 ## Platform build mode
 
@@ -111,9 +111,9 @@ If `--no-push` is set with restart enabled, the script auto-disables restart (no
 | `amd64` | buildx with `--platform linux/amd64` | Local cross-build to amd64 |
 | `multi` | buildx multi-arch push | Release workflow (`release.yml`), not ARC |
 
-On the in-cluster ARC runner, buildx's docker-container driver loses its push session against the registry ingress (`no active session … context deadline exceeded`). `auto` avoids buildx entirely.
+On the in-cluster ARC runner, buildx's docker-container driver loses its push session to the registry ingress (`no active session … context deadline exceeded`). `auto` avoids buildx entirely.
 
-**Rule:** `build.yml` always passes `--platform auto --verbose`, regardless of the script's `PLATFORM` default.
+**Rule:** `build.yml` always passes `--platform auto --verbose`, no matter what the script's `PLATFORM` default is.
 
 ## Build metadata
 
@@ -132,11 +132,11 @@ Pass to Docker:
 | Frontend | `VITE_APP_VERSION`, `VITE_GIT_COMMIT`, `VITE_BUILD_TIME` |
 | Backend | `VERSION`, `GIT_COMMIT`, `BUILD_TIME` |
 
-Must match what the Dockerfiles expect ([docker.md](docker.md)).
+These must match what the Dockerfiles expect ([docker.md](docker.md)).
 
 ## Restart behaviour
 
-Rollout is triggered after a successful push for each built component.
+A rollout is triggered after a successful push for each built component.
 
 ```
 restart_deployment <deployment-name>
@@ -152,7 +152,7 @@ RESTART_HOOK_URL="${RESTART_HOOK_URL:-https://restart.oglimmer.com/restart}"
 RESTART_NAMESPACE="${RESTART_NAMESPACE:-<app-namespace>}"   # some older scripts use K8S_NAMESPACE — same hook path
 ```
 
-Normalize on `RESTART_NAMESPACE` in new scripts; older repos may still use `K8S_NAMESPACE` ([assessments/oglimmer-sh.md](assessments/oglimmer-sh.md)).
+Standardize on `RESTART_NAMESPACE` in new scripts; older repos may still use `K8S_NAMESPACE` ([assessments/oglimmer-sh.md](assessments/oglimmer-sh.md)).
 
 **Prerequisite check** (before build):
 
@@ -183,11 +183,11 @@ Never log or dry-run-print the actual token.
 7. Tag push triggers `release.yml` (multi-arch images on hosted runner).
 8. `helm-push` — package chart, `helm registry login` via `gh auth token`, push to `oci://ghcr.io/oglimmer`.
 
-**Partial variant:** commit, tag, `execute_build` only — no `git push`, no `release.yml`, no `helm-push` (intentional for some private apps).
+**Partial variant:** commit, tag, and `execute_build` only — no `git push`, no `release.yml`, no `helm-push` (intentional for some private apps).
 
 **No release command:** shape B multi-component scripts and single-image shape C often omit `release`.
 
-Never hand-edit versions in `Chart.yaml` and `package.json` separately — use the scripted release where implemented.
+Never hand-edit versions in `Chart.yaml` and `package.json` separately — use the scripted release wherever it exists.
 
 Release variants by repo: [assessments/repo-map.md](assessments/repo-map.md).
 
@@ -210,9 +210,9 @@ Authenticate with `gh auth token | helm registry login ghcr.io`. Chart version r
 | `logs` | `tail -f /tmp/<app>.log` |
 | `test` | `cd backend && go test ./...` |
 
-`ensure_backend_env` creates `backend/.env` on first run with `JWT_SECRET=$(openssl rand -hex 32)` and `AUTH_MODE=password` — only when the file is missing. Document that Postgres must still be running (`compose up`).
+`ensure_backend_env` creates `backend/.env` on first run with `JWT_SECRET=$(openssl rand -hex 32)` and `AUTH_MODE=password`, but only when the file is missing. Note that Postgres must still be running (`compose up`).
 
-`load_backend_env` sources `backend/.env` before start. Shellcheck: disable `SC1091` in `.shellcheckrc` for the sourced file.
+`load_backend_env` sources `backend/.env` before start. For shellcheck, disable `SC1091` in `.shellcheckrc` for the sourced file.
 
 ## CI integration
 
@@ -234,7 +234,7 @@ Authenticate with `gh auth token | helm registry login ghcr.io`. Chart version r
 
 For `registry.oglimmer.com` repos, login uses `REGISTRY_USERNAME` / `REGISTRY_PASSWORD` secrets instead.
 
-Include `oglimmer.sh` in every `paths-filter` component block so script changes rebuild all images.
+Include `oglimmer.sh` in every `paths-filter` component block so that script changes rebuild all images.
 
 **GitHub repo secrets** (from cluster — see `/setup-arc-build`):
 
@@ -267,7 +267,7 @@ set -euo pipefail
 # 13. main() — parse → help → dev → prerequisites → build|release
 ```
 
-Keep `main` thin. Put repo-specific names only in the defaults block and image-name derivation — not scattered through build logic.
+Keep `main` thin. Put repo-specific names only in the defaults block and image-name derivation — never scattered through the build logic.
 
 ## Registries
 
@@ -276,7 +276,7 @@ Keep `main` thin. Put repo-specific names only in the defaults block and image-n
 | `ghcr.io/oglimmer` | Public OSS-style apps on GitHub | `GITHUB_TOKEN` |
 | `registry.oglimmer.com` | Private cluster apps | `REGISTRY_USERNAME` / `REGISTRY_PASSWORD` |
 
-Image naming convention: `<registry>/<project>-frontend` and `<registry>/<project>-backend`. Some repos shorten suffixes (`-fe`/`-be`) or use component-specific names — document in the script defaults.
+Image naming convention: `<registry>/<project>-frontend` and `<registry>/<project>-backend`. Some repos shorten the suffixes (`-fe`/`-be`) or use component-specific names — document these in the script defaults.
 
 ## New-repo checklist
 
