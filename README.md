@@ -15,6 +15,8 @@ These documents state **what we build toward** — stack choices, layout, CI sha
 | Pre-commit | [pre-commit.md](pre-commit.md) | Vue + Go + Helm full-stack |
 | Docker | [docker.md](docker.md) | Repo builds container images |
 | Helm | [helm.md](helm.md) | Repo deploys to Kubernetes |
+| Observability | [observability.md](observability.md) | Repo exposes Prometheus metrics to the cluster monitoring stack |
+| Testing | [testing.md](testing.md) | Repo ships Go/Java/npm tests or Playwright e2e |
 | Vue frontend | [vue-frontend.md](vue-frontend.md) | Vue 3 + Vite SPA |
 | Nuxt frontend | [nuxt-frontend.md](nuxt-frontend.md) | Nuxt 4 — static (pattern A) or Spring SPA (pattern B) |
 | Go backend | [go-backend.md](go-backend.md) | Go HTTP service |
