@@ -148,11 +148,11 @@ Ordered by impact:
 | Nuxt 4 static site (generate + nginx) | `homepage-v4` → [nuxt-frontend.md](../nuxt-frontend.md) pattern A |
 | Nuxt 4 + Spring SPA (Nitro) | `start-renovate/frontend` → [nuxt-frontend.md](../nuxt-frontend.md) pattern B |
 | Spring Boot OAuth SPA backend | `start-renovate/backend` → [java-spring-backend.md](../java-spring-backend.md) |
-| Spring Boot API + Redis session | `deep-digest-rss/news-backend` → [java-spring-backend.md](../java-spring-backend.md) |
+| Spring Boot API + Redis session + MCP | `deep-digest-rss/news-backend` — deviates from canonical DB/auth/layout, copy MCP add-on only; see [assessments/java-spring-backend.md](java-spring-backend.md) |
 | ghcr release + cleanup | `irl-planner-pro` or `plugin-skill-hosting` `release.yml` |
 | Vue + Go + MariaDB (session/OIDC) | `coffee-diary` → [vue-frontend.md](../vue-frontend.md) + [go-backend.md](../go-backend.md) (MySQL paths) |
 | Vue `client/` + Spring `server/` (STOMP) | `boardwalk-billionaire` → [vue-frontend.md](../vue-frontend.md) + [java-spring-backend.md](../java-spring-backend.md) |
-| Vue + Spring `backend/` (STOMP + MariaDB) | `cybernight` → [vue-frontend.md](../vue-frontend.md) + [java-spring-backend.md](../java-spring-backend.md) variant B |
+| Vue + Spring `backend/` (STOMP + MariaDB) | `cybernight` → [vue-frontend.md](../vue-frontend.md) + [java-spring-backend.md](../java-spring-backend.md) (MariaDB is a documented deviation, see [assessments/java-spring-backend.md](java-spring-backend.md)) |
 | Photo gallery (Helm api+worker+tusd) | `picz2` → [java-spring-backend.md](../java-spring-backend.md) + [helm.md](../helm.md) multi-deploy |
 | Legacy Gradle + AWS photo app | `picz` — reference only; prefer `picz2` |
 | Vue + Go `backend-go/` + MariaDB (FFmpeg processing) | `video-msg` → [vue-frontend.md](../vue-frontend.md) + [go-backend.md](../go-backend.md) |
