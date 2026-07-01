@@ -193,7 +193,7 @@ Rules:
 
 - **Admin routes** under `/api/admin/…` so they don't collide with slug-keyed attendee routes (`/api/events/{slug}`).
 - **Rate-limit** login and OAuth token endpoints per IP.
-- **Mount optional surfaces** (MCP, OAuth discovery) only when config enables them.
+- **Mount optional surfaces** (MCP, OAuth discovery) only when config enables them — see [mcp.md](mcp.md) for the full MCP server + OAuth 2.1 AS pattern.
 - Set `r.NotFound` and `r.MethodNotAllowed` to content-negotiated handlers.
 
 ### Auth middleware

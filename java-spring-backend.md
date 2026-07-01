@@ -318,7 +318,7 @@ Add these when a project's requirements call for them — they layer onto the pa
 | Machine clients (no browser session) | `ApiKeyAuthFilter` in a separate filter chain / `@Order`, alongside the OAuth2 chain |
 | Horizontally-scaled sessions | `spring.session.store-type: redis` instead of the default in-memory servlet session |
 | Rate limiting | Bucket4j, applied to auth/OAuth endpoints and any public unauthenticated routes |
-| AI tool endpoints | Spring AI + an MCP server under its own package (`mcp/`); give MCP OAuth endpoints their own filter chain if their rules differ from the SPA's |
+| AI tool endpoints | Spring AI + an MCP server under its own package (`mcp/`); give MCP OAuth endpoints their own filter chain if their rules differ from the SPA's — full pattern in [mcp.md](mcp.md) |
 | Existing MariaDB infra | `flyway-mysql` + MariaDB driver instead of the Postgres stack — document why in the assessment |
 
 ## Docker

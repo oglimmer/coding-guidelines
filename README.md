@@ -16,6 +16,7 @@ These documents state **what we build toward** — stack choices, layout, CI sha
 | Docker | [docker.md](docker.md) | Repo builds container images |
 | Helm | [helm.md](helm.md) | Repo deploys to Kubernetes |
 | Observability | [observability.md](observability.md) | Repo exposes Prometheus metrics to the cluster monitoring stack |
+| MCP server | [mcp.md](mcp.md) | Repo exposes app data/actions to LLM clients over the Model Context Protocol |
 | Testing | [testing.md](testing.md) | Repo ships Go/Java/npm tests or Playwright e2e |
 | Vue frontend | [vue-frontend.md](vue-frontend.md) | Vue 3 + Vite SPA |
 | Nuxt frontend | [nuxt-frontend.md](nuxt-frontend.md) | Nuxt 4 — static (pattern A) or Spring SPA (pattern B) |
@@ -38,5 +39,6 @@ These documents state **what we build toward** — stack choices, layout, CI sha
 | Photo gallery — legacy (`picz`) or K8s rewrite (`picz2`) | [assessments/repo-map.md](assessments/repo-map.md) — **prefer `picz2`** for new work |
 | Screen recording (Vue + Go `backend-go/` + FFmpeg) | [vue-frontend.md](vue-frontend.md) + [go-backend.md](go-backend.md) — see `video-msg` in [assessments/repo-map.md](assessments/repo-map.md) |
 | Status monitoring (Vue + Spring + OIDC) | [vue-frontend.md](vue-frontend.md) + [java-spring-backend.md](java-spring-backend.md) — see `status-tacos` in [assessments/repo-map.md](assessments/repo-map.md) |
+| MCP server for LLM clients (Go or Spring) | [mcp.md](mcp.md) — layer onto [go-backend.md](go-backend.md) or [java-spring-backend.md](java-spring-backend.md) |
 
 For a specific project's stack and path names, start at [assessments/repo-map.md](assessments/repo-map.md).

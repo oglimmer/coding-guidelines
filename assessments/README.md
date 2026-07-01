@@ -57,6 +57,7 @@ Legend: ✅ matches target · ⚠️ partial · ❌ missing or N/A · 🔀 diffe
 | Nuxt frontend | [nuxt-frontend.md](nuxt-frontend.md) |
 | Go backend | [go-backend.md](go-backend.md) |
 | Java Spring backend | [java-spring-backend.md](java-spring-backend.md) |
+| MCP server | [mcp.md](mcp.md) |
 | oglimmer.sh | [oglimmer-sh.md](oglimmer-sh.md) |
 | Versioning & release | [versioning-release.md](../versioning-release.md) + [repo-map.md](repo-map.md) release variants |
 
