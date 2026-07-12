@@ -171,7 +171,7 @@ Template rules:
 
 - When optional paths (`/metrics`, `/mcp`, `/oauth`, `/.well-known/*`) are feature-gated, list them in the ingress template **before** the values-driven path loop.
 - Use `pathType: Exact` for probe and metrics paths; `Prefix` for API and SPA.
-- Match `nginx.ingress.kubernetes.io/proxy-body-size` to the backend's upload cap.
+- The cluster runs **Traefik** (v3, `traefik.io/v1alpha1`), not nginx-ingress — use Traefik Middlewares, never `nginx.ingress.kubernetes.io/*` annotations. Attach a Middleware to a standard Ingress via `traefik.ingress.kubernetes.io/router.middlewares: <namespace>-<name>@kubernetescrd`. Cap request body size with a `buffering` Middleware (`maxRequestBodyBytes`) matched to the backend's upload cap — Traefik has no body-size limit by default.
 - SSE endpoints need long proxy timeouts and buffering off — document in values comments.
 
 ## Deployments
