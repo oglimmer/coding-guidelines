@@ -2,7 +2,7 @@
 
 How audited org repos map to the coding guidelines. Read this before copying patterns from a sibling — **path names and stacks differ**.
 
-Last verified: June 2026 (files on disk under `/Users/oli/dev/`).
+Last verified: June 2026 (files on disk under `/Users/oli/dev/`). `deep-digest-rss`'s DB field re-verified July 2026 — it was listed as MariaDB but connects with `jdbc:postgresql://`.
 
 ## Which docs apply?
 
@@ -47,7 +47,7 @@ Only irl-planner-pro today (target for Vue+Go siblings):
 | linky | Vue 3 `client/` | Go `server/` | **MySQL** | Helm | registry.oglimmer.com |
 | yt-infographics | **Svelte** `frontend/` | Go `backend/` (thin) | none | Helm | registry.oglimmer.com |
 | easy-host-k8s | Go templates `backend-go/templates/` | Go `backend-go/` | **MySQL** | Helm single chart | registry.oglimmer.com |
-| deep-digest-rss | Vue `news-frontend/` | **Java** `news-backend/` | **MariaDB** + Redis | Helm multi-deploy | registry.oglimmer.com |
+| deep-digest-rss | Vue `news-frontend/` | **Java** `news-backend/` | **Postgres** + Redis | Helm multi-deploy | registry.oglimmer.com |
 | start-renovate | **Nuxt 4** `frontend/` | **Java** `backend/` | Postgres | Helm | registry.oglimmer.com |
 | homepage-v4 | **Nuxt 4** (repo root) | — | — | Helm | registry.oglimmer.com |
 | coffee-diary | Vue 3 `frontend/` + **SwiftUI** `ios/` | Go `backend/` | **MariaDB** | Helm | registry.oglimmer.com |
@@ -149,6 +149,8 @@ Ordered by impact:
 | Nuxt 4 + Spring SPA (Nitro) | `start-renovate/frontend` → [nuxt-frontend.md](../nuxt-frontend.md) pattern B |
 | Spring Boot OAuth SPA backend | `start-renovate/backend` → [java-spring-backend.md](../java-spring-backend.md) |
 | Spring Boot API + Redis session + MCP | `deep-digest-rss/news-backend` — deviates from canonical DB/auth/layout, copy MCP add-on only; see [../mcp.md](../mcp.md) + [assessments/mcp.md](mcp.md) |
+| Postgres from Spring (JSONB, FTS, upsert, Flyway) | `start-renovate` or `deep-digest-rss` → [../postgres-for-spring.md](../postgres-for-spring.md) |
+| Postgres from Go (pgx, pooler-safe config) | `irl-planner-pro` → [../postgres-for-golang.md](../postgres-for-golang.md) |
 | MCP server (Go, own OAuth 2.1 AS) | `plugin-skill-hosting` — Go source of truth; see [../mcp.md](../mcp.md) + [assessments/mcp.md](mcp.md) |
 | ghcr release + cleanup | `irl-planner-pro` or `plugin-skill-hosting` `release.yml` |
 | Vue + Go + MariaDB (session/OIDC) | `coffee-diary` → [vue-frontend.md](../vue-frontend.md) + [go-backend.md](../go-backend.md) (MySQL paths) |

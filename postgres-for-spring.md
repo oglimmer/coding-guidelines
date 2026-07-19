@@ -27,6 +27,8 @@ spring:
       leak-detection-threshold: 60000
 ```
 
+**Why this looks optional and isn't.** PgBouncer 1.21+ can proxy named prepared statements, and since 1.24 `max_prepared_statements` defaults to 200 — so against a recent, default PgBouncer an unconfigured client works fine. It breaks when `max_prepared_statements = 0` (older or locked-down deployments) **and** there is enough concurrency to reassign server connections between transactions, surfacing as `SQLSTATE 26000: prepared statement … does not exist`. The failure hides in dev and appears under production load, so set it unconditionally — we do not control the company environment's PgBouncer config.
+
 Everything statement-scoped or client-side works unchanged behind the pooler: JSONB, full-text search, upserts, `RETURNING`, `SKIP LOCKED` queues, arrays, exclusion constraints, `unnest` bulk writes, Flyway.
 
 What breaks is **session state**, because transaction pooling recycles the connection between transactions:

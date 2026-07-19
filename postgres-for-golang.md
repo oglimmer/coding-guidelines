@@ -35,6 +35,14 @@ pool, err := pgxpool.NewWithConfig(ctx, cfg)
 
 This is the *only* thing `database/sql` was ever buying us — it is not tied to the adapter, and `pgxpool` takes the identical settings via `cfg.ConnConfig`. Pgx-native and pooler-safe are not in tension.
 
+**Why this looks optional and isn't.** PgBouncer 1.21+ can proxy named prepared statements, and since 1.24 `max_prepared_statements` defaults to 200 — so against a *recent, default* PgBouncer an unconfigured pool works fine. It breaks when `max_prepared_statements = 0` (older versions, or a deliberately locked-down deployment) **and** enough concurrency exists to reassign server connections between transactions. Verified locally against PgBouncer 1.25.2, transaction mode, `max_prepared_statements=0`, 20 concurrent workers:
+
+```
+ERROR: prepared statement "stmtcache_deb2ff4999..." does not exist (SQLSTATE 26000)
+```
+
+The failure is therefore **load- and config-dependent**: it hides in dev and in low-traffic testing, then appears under production concurrency. Since we do not control the company environment's PgBouncer version or `max_prepared_statements`, set the three options unconditionally.
+
 ### What is safe in both environments
 
 Everything statement-scoped or client-side — the bulk of this document. JSONB, full-text search, upserts, `RETURNING`, `SKIP LOCKED` queues, arrays, exclusion constraints, `CollectRows`/`RowToStructByName`, `pgtype.Range`, `CopyFrom`, and `unnest` bulk loads all work unchanged behind a transaction pooler.
