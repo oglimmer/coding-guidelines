@@ -64,8 +64,6 @@ differences, and skip `postgres-for-golang.md` entirely. Postgres repos, verifie
 July 2026: **Go** = irl-planner-pro, plugin-skill-hosting, trivia · **Spring** =
 start-renovate, deep-digest-rss. The other Spring services (cybernight, picz, picz2,
 status-tacos) are MariaDB — skip `postgres-for-spring.md` there.
-⚠️ `assessments/repo-map.md` lists deep-digest-rss as MariaDB; its `news-backend` actually
-connects with `jdbc:postgresql://`. The map's row is stale on that field.
 **Svelte** (yt-infographics) has no frontend guideline — skip `vue-frontend.md`.
 
 ## Topic → doc map
@@ -91,6 +89,18 @@ connects with `jdbc:postgresql://`. The map's row is stale on that field.
 
 Start any stack-routing question at `README.md` (Stack routing table) or
 `assessments/repo-map.md` (per-repo path mapping).
+
+## Postgres: the two environments
+
+Go and Spring services run against a **direct Postgres** in the k3s cluster and behind a
+**transaction-mode PgBouncer** in the company environment, from one build. Both Postgres
+docs open with a `§0` stating the rule: write PgBouncer-compatible code, never require
+PgBouncer. Set the pooler-safe options unconditionally (Go: `QueryExecModeExec` plus
+disabled statement/description caches on `cfg.ConnConfig`; Spring: `prepareThreshold=0`) —
+they are inert on a direct connection. Session-scoped state is the whole incompatibility
+surface: `LISTEN`, session advisory locks, bare `SET`, and session temp tables are
+unavailable to any service that must run in both. Never deploy PgBouncer to k3s to "match"
+the company setup — compatibility is a property of the code, not the deployment.
 
 ## Known repos (path mapping + gaps override the generic docs)
 
