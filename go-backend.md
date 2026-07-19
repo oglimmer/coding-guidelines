@@ -20,7 +20,7 @@ This doc covers Go application code only. Java Spring backends share the deploy 
 - **Transport separate from domain.** `internal/server/` is HTTP wiring only. Integrations (`email`, `slack`) and business rules get their own packages, testable without `httptest`.
 - **Env-only configuration.** One `Config` struct, no config files in production. Sensible dev defaults; reject insecure defaults at startup unless explicitly allowed.
 - **JSON API contract.** Errors are always `{"error": "…"}`. Browsers hitting unmatched routes get styled HTML via content negotiation.
-- **Postgres via pgx.** Tuned for PgBouncer transaction pooling. SQL migrations are embedded and run at startup.
+- **Postgres via pgx.** Compatible with PgBouncer transaction pooling, but never dependent on it — the same binary runs against a direct Postgres. SQL migrations are embedded and run at startup.
 - **stdlib logging.** Single-line `log.Printf` with level prefixes. No structured logging framework until the project outgrows this.
 
 ## Stack
@@ -29,7 +29,7 @@ This doc covers Go application code only. Java Spring backends share the deploy 
 |-------|--------|
 | Language | Go 1.26+ |
 | Router | `go-chi/chi/v5` |
-| Database | `jackc/pgx/v5` via `database/sql` stdlib adapter |
+| Database | `jackc/pgx/v5` native (`pgxpool`), configured pooler-safe |
 | Auth | `golang-jwt/jwt/v5` (session JWTs) + `coreos/go-oidc/v3` (OIDC) |
 | Metrics | `prometheus/client_golang` |
 | CORS | `go-chi/cors` |
@@ -217,26 +217,31 @@ The Vue frontend ([vue-frontend.md](vue-frontend.md)) expects:
 
 ## Database (`internal/db`)
 
+Postgres-native features — JSONB, full-text search, upserts, `SKIP LOCKED` queues, advisory locks, bulk loads — are covered in [postgres-for-golang.md](postgres-for-golang.md). This doc owns the connection, the `Exec` interface, and the migration runner; that doc owns the SQL.
+
 ### Connection
 
-Use pgx's stdlib adapter — not `lib/pq`:
+**Use `pgxpool` with pgx's native interface** — not `lib/pq`, and not the `database/sql` adapter unless a third-party library forces `*sql.DB` on you.
+
+Services run against a direct Postgres in the k3s cluster and behind a **transaction-mode PgBouncer** in the company environment. One binary must satisfy both, so these three settings are mandatory. They are inert on a direct connection:
 
 ```go
-cfg.DefaultQueryExecMode = pgx.QueryExecModeExec
-cfg.StatementCacheCapacity = 0
-cfg.DescriptionCacheCapacity = 0
+cfg, err := pgxpool.ParseConfig(url)
+cfg.ConnConfig.DefaultQueryExecMode     = pgx.QueryExecModeExec
+cfg.ConnConfig.StatementCacheCapacity   = 0
+cfg.ConnConfig.DescriptionCacheCapacity = 0
+
+cfg.MaxConns = 10
+cfg.MinConns = 2
+cfg.MaxConnLifetime = 30 * time.Minute
+cfg.MaxConnIdleTime = 5 * time.Minute
 ```
 
-Pool limits for PgBouncer in front:
-
-```go
-db.SetMaxOpenConns(20)
-db.SetMaxIdleConns(5)
-db.SetConnMaxIdleTime(30 * time.Second)
-db.SetConnMaxLifetime(5 * time.Minute)
-```
+Set them in code, not the DSN — a pooler-safety guarantee should not live in environment config where it can be dropped in a copy-paste. This also rules out session-scoped state (`LISTEN`, `pg_advisory_lock`, bare `SET`); see [§0 of postgres-for-golang.md](postgres-for-golang.md#0-the-two-environments-read-this-first) for the full list and the replacements.
 
 Ping in a retry loop at startup (~30×, 1s backoff) so the service tolerates a slow-booting Postgres.
+
+Legacy note: `irl-planner-pro` and `plugin-skill-hosting` use the `database/sql` adapter with these same three settings. They are pooler-safe and need no migration — new services use `pgxpool` directly.
 
 ### Migrations
 
@@ -250,13 +255,15 @@ Ping in a retry loop at startup (~30×, 1s backoff) so the service tolerates a s
 
 ```go
 type Exec interface {
-    ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-    QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-    QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
+    Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
+    Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+    QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 ```
 
-Functions that accept `db.Exec` work both inside and outside a transaction. Use `*sql.Tx` for multi-statement writes.
+This is satisfied by both `*pgxpool.Pool` and `pgx.Tx`, so functions that accept `db.Exec` work inside and outside a transaction. Use `pgx.Tx` (via `pool.Begin` or `pgx.BeginTxFunc`) for multi-statement writes.
+
+On the two repos still using the `database/sql` adapter this interface is the `sql.Result`/`*sql.Rows` equivalent (`ExecContext`/`QueryContext`/`QueryRowContext`). Same idea, same call sites — don't mix the two shapes within one repo.
 
 ### Schema conventions
 
@@ -417,14 +424,15 @@ See [pre-commit.md](pre-commit.md) and [github-actions.md](github-actions.md).
 | Do not | Do instead |
 |--------|------------|
 | Put business logic in `main.go` | `internal/<domain>/` or handler files with clear scope |
-| Use `lib/pq` | `pgx/v5` stdlib adapter with PgBouncer-safe settings |
+| Use `lib/pq` | `pgx/v5` native (`pgxpool`) with the pooler-safe settings |
 | Return stack traces to clients | `serverErr` logs internally; return `{"error": "…"}` |
 | Crash on bad env var format | Warn + fall back to default |
 | Ship with default JWT secret in prod | Reject at startup unless `ALLOW_INSECURE_JWT_SECRET` |
 | Global mutable state | Pass `*App` or dependencies explicitly |
 | Hand-run migrations separately | Embedded migrations at startup |
+| `LISTEN` or `pg_advisory_lock` (session-scoped) | Poll; `pg_try_advisory_xact_lock` — session state breaks behind PgBouncer |
 | `password` auth in production | OIDC only on shared deployments |
 | Enable `/metrics` on public ingress without token | Require `METRICS_TOKEN` |
 | Hard-delete audit data | Soft-delete or append-only log tables |
 | Skip `-race` in CI | `go test -race ./...` |
-| Use an ORM by default | Raw SQL via `database/sql` + pgx |
+| Use an ORM by default | Raw SQL via pgx (`CollectRows` for scanning) |

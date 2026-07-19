@@ -1,11 +1,12 @@
 ---
 name: coding-guidelines
 description: >-
-  Apply, review against, or scaffold from the house coding guidelines (14 concept
+  Apply, review against, or scaffold from the house coding guidelines (16 concept
   docs + assessments of 16 audited repos) that live in ~/dev/coding-guidelines.
   Use when the user asks to follow "our/house conventions", build or review Go /
-  Java Spring / Vue / Nuxt code, set up Docker / Helm / GitHub Actions / Renovate /
-  pre-commit / observability / MCP / oglimmer.sh / versioning, or asks which
+  Java Spring / Vue / Nuxt code, work with Postgres from Go or Spring, set up
+  Docker / Helm / GitHub Actions / Renovate / pre-commit / observability / MCP /
+  oglimmer.sh / versioning, or asks which
   guideline applies to a repo. Routes to the right doc(s) instead of dumping all of them.
 trigger: /coding-guidelines
 ---
@@ -16,7 +17,7 @@ The canonical conventions for how we build software live as one markdown file pe
 concept in **`~/dev/coding-guidelines/`** (this skill's home repo). Adoption, path
 mappings, gaps, and copy-from repos live in **`~/dev/coding-guidelines/assessments/`**.
 
-Do **not** read all 14 docs. Figure out what the task touches, read only those, and
+Do **not** read all 16 docs. Figure out what the task touches, read only those, and
 — when working inside one of the 16 audited repos — layer in that repo's path mapping
 and known gaps. That routing is the whole job of this skill.
 
@@ -53,11 +54,19 @@ ls **/Dockerfile Dockerfile 2>/dev/null | head -1 | grep -q . && echo "→ docke
 [ -f .pre-commit-config.yaml ] && echo "→ pre-commit.md"
 grep -rqli 'modelcontextprotocol\|mcp' --include=go.mod --include=pom.xml . 2>/dev/null && echo "→ mcp.md (confirm it's an MCP server)"
 grep -rqli 'prometheus\|micrometer\|/metrics' . 2>/dev/null && echo "→ observability.md"
+grep -rqls --include=go.mod 'jackc/pgx\|lib/pq' . && echo "→ postgres-for-golang.md"
+grep -rqls --include=pom.xml --include='build.gradle*' 'org.postgresql' . && echo "→ postgres-for-spring.md"
 ```
 
 Note: **MySQL/MariaDB Go services** (linky, easy-host-k8s, coffee-diary) diverge from
 `go-backend.md`'s Postgres/pgx assumptions — read the doc but expect sqlx/database driver
-differences. **Svelte** (yt-infographics) has no frontend guideline — skip `vue-frontend.md`.
+differences, and skip `postgres-for-golang.md` entirely. Postgres repos, verified on disk
+July 2026: **Go** = irl-planner-pro, plugin-skill-hosting, trivia · **Spring** =
+start-renovate, deep-digest-rss. The other Spring services (cybernight, picz, picz2,
+status-tacos) are MariaDB — skip `postgres-for-spring.md` there.
+⚠️ `assessments/repo-map.md` lists deep-digest-rss as MariaDB; its `news-backend` actually
+connects with `jdbc:postgresql://`. The map's row is stale on that field.
+**Svelte** (yt-infographics) has no frontend guideline — skip `vue-frontend.md`.
 
 ## Topic → doc map
 
@@ -65,6 +74,8 @@ differences. **Svelte** (yt-infographics) has no frontend guideline — skip `vu
 |---|---|---|
 | Go HTTP service (chi, pgx, migrations, auth, jobs) | `go-backend.md` | `go.mod` present |
 | Spring Boot API | `java-spring-backend.md` | `pom.xml`/`build.gradle` present |
+| Postgres from Go (JSONB, FTS, upsert, SKIP LOCKED, pgxpool) | `postgres-for-golang.md` | Go repo + Postgres |
+| Postgres from Spring (Hibernate 6 JSON, upsert, Flyway, Hikari) | `postgres-for-spring.md` | Spring repo + Postgres |
 | Vue 3 SPA (Vite, Pinia, fetch client, styling) | `vue-frontend.md` | `vite.config` + Vue |
 | Nuxt 4 (A: static site · B: Spring SPA) | `nuxt-frontend.md` | `nuxt.config` present |
 | MCP server layered on a backend | `mcp.md` | Repo exposes MCP tools |

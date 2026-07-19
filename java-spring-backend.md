@@ -309,6 +309,8 @@ Never call `WebClient` (or any outbound network call) from inside a `@Transactio
 | Driver | `flyway-database-postgresql` + the Boot 4 `spring-boot-flyway` starter (required for migrations to run) |
 | Postgres major bumps | Disable in [renovate.md](renovate.md) when the chart bundles Postgres |
 
+On Postgres specifically, [postgres-for-spring.md](postgres-for-spring.md) covers JSONB mapping, full-text search, upserts, `SKIP LOCKED` queues, advisory locks, bulk writes, and the Flyway pitfalls (`CREATE INDEX CONCURRENTLY`, `lock_timeout`, `NOT NULL` backfills). It agrees with this table — Flyway owns the schema, `ddl-auto` stays `validate`.
+
 ## Optional add-ons
 
 Add these when a project's requirements call for them — they layer onto the pattern above, they don't fork it into a variant:

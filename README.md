@@ -22,6 +22,8 @@ These documents state **what we build toward** — stack choices, layout, CI sha
 | Nuxt frontend | [nuxt-frontend.md](nuxt-frontend.md) | Nuxt 4 — static (pattern A) or Spring SPA (pattern B) |
 | Go backend | [go-backend.md](go-backend.md) | Go HTTP service |
 | Java Spring backend | [java-spring-backend.md](java-spring-backend.md) | Spring Boot HTTP API |
+| Postgres for Go | [postgres-for-golang.md](postgres-for-golang.md) | Go service on Postgres (pgx v5) |
+| Postgres for Spring | [postgres-for-spring.md](postgres-for-spring.md) | Spring Boot service on Postgres (Hibernate 6 / JdbcClient) |
 | oglimmer.sh | [oglimmer-sh.md](oglimmer-sh.md) | Repo has `oglimmer.sh` |
 | Versioning & release | [versioning-release.md](versioning-release.md) | Repo ships versioned artifacts (images, charts, tags) |
 
@@ -29,8 +31,8 @@ These documents state **what we build toward** — stack choices, layout, CI sha
 
 | You are building… | Read |
 |-------------------|------|
-| Vue 3 SPA + Go API + Helm | [vue-frontend.md](vue-frontend.md) + [go-backend.md](go-backend.md) + [helm.md](helm.md) |
-| Vue 3 SPA + Go API + MariaDB | Same docs — see [assessments/repo-map.md](assessments/repo-map.md) (`coffee-diary`) |
+| Vue 3 SPA + Go API + Helm | [vue-frontend.md](vue-frontend.md) + [go-backend.md](go-backend.md) + [postgres-for-golang.md](postgres-for-golang.md) + [helm.md](helm.md) |
+| Vue 3 SPA + Go API + MariaDB | Same docs **minus** [postgres-for-golang.md](postgres-for-golang.md) — see [assessments/repo-map.md](assessments/repo-map.md) (`coffee-diary`) |
 | Nuxt 4 static site (blog/marketing) | [nuxt-frontend.md](nuxt-frontend.md) pattern A |
 | Nuxt 4 + Spring Boot SPA | [nuxt-frontend.md](nuxt-frontend.md) pattern B + [java-spring-backend.md](java-spring-backend.md) |
 | Vue SPA + Spring Boot API | [vue-frontend.md](vue-frontend.md) + [java-spring-backend.md](java-spring-backend.md) |
@@ -40,5 +42,6 @@ These documents state **what we build toward** — stack choices, layout, CI sha
 | Screen recording (Vue + Go `backend-go/` + FFmpeg) | [vue-frontend.md](vue-frontend.md) + [go-backend.md](go-backend.md) — see `video-msg` in [assessments/repo-map.md](assessments/repo-map.md) |
 | Status monitoring (Vue + Spring + OIDC) | [vue-frontend.md](vue-frontend.md) + [java-spring-backend.md](java-spring-backend.md) — see `status-tacos` in [assessments/repo-map.md](assessments/repo-map.md) |
 | MCP server for LLM clients (Go or Spring) | [mcp.md](mcp.md) — layer onto [go-backend.md](go-backend.md) or [java-spring-backend.md](java-spring-backend.md) |
+| Postgres-backed service (either language) | [postgres-for-golang.md](postgres-for-golang.md) or [postgres-for-spring.md](postgres-for-spring.md) — layer onto the matching backend doc |
 
 For a specific project's stack and path names, start at [assessments/repo-map.md](assessments/repo-map.md).
